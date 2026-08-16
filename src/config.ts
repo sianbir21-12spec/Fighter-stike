@@ -2,9 +2,17 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+// In the browser, always use the current public origin. This is critical for
+// the one-service deployment because the browser cannot reach the server's
+// internal 127.0.0.1 address. On the server, keep the internal URL for
+// communication between the main server and game server.
+const browserMainServerUrl =
+  typeof window !== 'undefined' ? window.location.origin : undefined;
+
 export const mainServer = {
   url:
     process.env.MAIN_SERVER_URL ||
+    browserMainServerUrl ||
     (process.env.ONE_SERVICE === 'true' ? 'http://127.0.0.1:3000' : 'http://localhost:3002'),
 
   /**
