@@ -9,7 +9,7 @@ import {
   ObserverConnection,
   RestartData,
 } from '../types';
-import { Cmd, cmd } from '../commands';
+import { Cmd, cmd, union } from '../commands';
 import { msg } from '../messages';
 import { time } from '../utils';
 import * as game from '../games/game';
@@ -88,7 +88,7 @@ export const authConnection = (
     });
 
     cmds.push(game.joinPlayer(state.game, connection.id, data));
-    return cmds;
+    return union(cmds);
   }
 
   if (joinType === 'observer') {
