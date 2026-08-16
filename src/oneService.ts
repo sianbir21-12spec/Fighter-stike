@@ -1,9 +1,10 @@
 import * as ws from 'ws';
 
-// One public Zeabur service: keep the existing main and game servers on
-// internal ports and expose the game WebSocket through the main server.
+// One public Zeabur service. The public HTTP/WebSocket endpoint is fixed to
+// the port exposed by the Dockerfile/Zeabur service. The game server remains
+// internal on port 3001.
 process.env.ONE_SERVICE = 'true';
-process.env.MAIN_SERVER_PORT = process.env.PORT || process.env.MAIN_SERVER_PORT || '3002';
+process.env.MAIN_SERVER_PORT = process.env.MAIN_SERVER_PORT || '3000';
 process.env.GAME_SERVER_PORT = process.env.GAME_SERVER_PORT || '3001';
 
 // Start the existing servers without changing their game logic.
