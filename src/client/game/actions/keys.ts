@@ -69,9 +69,16 @@ export const processPressedkeys = (state: State) => {
   updateBoost(body, dt, isBoostPressed);
   updateSlow(body, isSlowPressed);
 
-  // Если нажата кнопка ускорения, то не стреляем
+  // Fire with Space, F, Enter, or left mouse button.
+  // If boost is held, firing remains disabled as in the original controls.
+  const isFirePressed =
+    pressedKeys['Space'] ||
+    pressedKeys['KeyF'] ||
+    pressedKeys['Enter'] ||
+    pressedKeys['MouseLeft'];
+
   if (!isBoostPressed) {
-    updateWeapon(state, pressedKeys['Space']);
+    updateWeapon(state, isFirePressed);
   }
 
   // Обрабатываем стик для мобилок
@@ -180,7 +187,7 @@ const restoreRoll = (
   thresholdDegress: number,
 ) => {
   const angleY = localAxisToXYAngle(yAxis, rotation);
-  // TODO: надо обойти кейс, когда X локальный перпендикулярен глобальному
+  // TODO: надо обойти кейс, когда X локальный перпендикуляр глобальному
   // в этом случае горизонт остается перпендикулярным
 
   // Восстанавливаем горизонт, только если прицел смотрит почти на него
