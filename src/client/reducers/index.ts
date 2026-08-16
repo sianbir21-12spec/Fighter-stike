@@ -71,6 +71,14 @@ const startObserverData = (appState: AppState, msg: ServerMsg['startObserverData
 };
 
 const gameJoinFail = (appState: AppState, _msg: ServerMsg['gameJoinFail']): Cmd => {
+  const reason = 'Could not join this game. Your previous session was replaced or the room is full. Please click the city again to retry.';
   appState.tryJoin = undefined;
+
+  // The original UI silently returned to the menu, which made a failed join
+  // look like a dead button. Give the player an explicit retry explanation.
+  if (typeof window !== 'undefined') {
+    window.setTimeout(() => window.alert(reason), 0);
+  }
+
   return cmd.renderUI();
 };
