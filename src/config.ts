@@ -2,17 +2,16 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-// In the browser, always use the current public origin. This is critical for
-// the one-service deployment because the browser cannot reach the server's
-// internal 127.0.0.1 address. On the server, keep the internal URL for
-// communication between the main server and game server.
+// In the browser, ALWAYS use the current public origin. Never allow a server-side
+// MAIN_SERVER_URL value (for example localhost:3002) to leak into the browser
+// bundle. The browser must call the same Zeabur domain that served the game.
 const browserMainServerUrl =
   typeof window !== 'undefined' ? window.location.origin : undefined;
 
 export const mainServer = {
   url:
-    process.env.MAIN_SERVER_URL ||
     browserMainServerUrl ||
+    process.env.MAIN_SERVER_URL ||
     (process.env.ONE_SERVICE === 'true' ? 'http://127.0.0.1:3000' : 'http://localhost:3002'),
 
   /**
@@ -130,12 +129,14 @@ export const damageIndicator = {
 
 export const animations = {
   shoot: {
-    duration: 5,
-    cooldown: 25,
-  },
-  fireFlash: {
-    duration: 5,
-    cooldown: 20,
+    shoot: {
+      duration: 5,
+      cooldown: 25,
+    },
+    fireFlash: {
+      duration: 5,
+      cooldown: 20,
+    },
   },
 };
 
