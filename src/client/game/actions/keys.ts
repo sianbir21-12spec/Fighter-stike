@@ -1,4 +1,3 @@
-import * as quat from '@2gis/gl-matrix/quat';
 import { PhysicBodyState, State } from '../../types';
 import { clamp } from '../../../utils';
 import { updateBoost, updateSlow } from './boost';
@@ -69,9 +68,13 @@ export const processPressedkeys = (state: State) => {
   updateBoost(body, dt, isBoostPressed);
   updateSlow(body, isSlowPressed);
 
-  // Если нажата кнопка ускорения, то не стреляем
+  // Fire with Space, F, or the left mouse button.
+  // If boost is held, firing remains disabled as in the original controls.
+  const isFirePressed =
+    pressedKeys['Space'] || pressedKeys['KeyF'] || pressedKeys['MouseLeft'];
+
   if (!isBoostPressed) {
-    updateWeapon(state, pressedKeys['Space']);
+    updateWeapon(state, isFirePressed);
   }
 
   // Обрабатываем стик для мобилок
