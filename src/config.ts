@@ -51,7 +51,7 @@ export const weapon = {
   bullet: {
     color: {
       flash: 0xd1780c,
-      line: 0xd8c70d,
+      line: 0xd8c70c,
     },
     opacity: 0.7,
     width: 2,
@@ -129,14 +129,12 @@ export const damageIndicator = {
 
 export const animations = {
   shoot: {
-    shoot: {
-      duration: 5,
-      cooldown: 25,
-    },
-    fireFlash: {
-      duration: 5,
-      cooldown: 20,
-    },
+    duration: 5,
+    cooldown: 25,
+  },
+  fireFlash: {
+    duration: 5,
+    cooldown: 20,
   },
 };
 
