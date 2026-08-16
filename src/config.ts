@@ -8,11 +8,20 @@ dotenv.config();
 const browserMainServerUrl =
   typeof window !== 'undefined' ? window.location.origin : undefined;
 
+// In one-service mode the main server and game server live in the same
+// container. The game server must therefore call the main server over the
+// container loopback, not localhost:3002 from the original two-service setup.
+const oneServiceMainServerUrl =
+  process.env.ONE_SERVICE === 'true'
+    ? `http://127.0.0.1:${process.env.MAIN_SERVER_PORT || '3000'}`
+    : undefined;
+
 export const mainServer = {
   url:
     browserMainServerUrl ||
+    oneServiceMainServerUrl ||
     process.env.MAIN_SERVER_URL ||
-    (process.env.ONE_SERVICE === 'true' ? 'http://127.0.0.1:3000' : 'http://localhost:3002'),
+    'http://localhost:3002',
 
   /**
    * Если игровой сервер не прислал информацию о себе за это время, то удаляем его
