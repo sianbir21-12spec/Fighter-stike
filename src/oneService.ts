@@ -4,8 +4,12 @@ import * as ws from 'ws';
 // the port exposed by the Dockerfile/Zeabur service. The game server remains
 // internal on port 3001.
 process.env.ONE_SERVICE = 'true';
-process.env.MAIN_SERVER_PORT = process.env.MAIN_SERVER_PORT || '3000';
-process.env.GAME_SERVER_PORT = process.env.GAME_SERVER_PORT || '3001';
+
+// Do NOT inherit Zeabur's automatically generated PORT/MAIN_SERVER_PORT.
+// Zeabur is configured to probe/expose container port 3000, so the main
+// HTTP server must always bind to 3000 in one-service mode.
+process.env.MAIN_SERVER_PORT = '3000';
+process.env.GAME_SERVER_PORT = '3001';
 
 // Start the existing servers without changing their game logic.
 // tslint:disable-next-line:no-var-requires
@@ -20,7 +24,7 @@ const proxyServer = new ws.Server({ noServer: true });
 // WebSocket proxy forwards that connection to the existing game server on :3001.
 publicServer.on('upgrade', (request, socket, head) => {
   proxyServer.handleUpgrade(request, socket, head, (clientSocket) => {
-    const gameSocket = new ws(`ws://127.0.0.1:${process.env.GAME_SERVER_PORT || '3001'}`);
+    const gameSocket = new ws(`ws://127.0.0.1:${process.env.GAME_SERVER_PORT}`);
 
     const closeBoth = () => {
       if (clientSocket.readyState === ws.OPEN || clientSocket.readyState === ws.CONNECTING) {
