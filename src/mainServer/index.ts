@@ -7,11 +7,11 @@ import { applyMiddlewares } from './middlewares';
 import { State } from './types';
 import { clearOldGames } from './reducers';
 
-const port = process.env.MAIN_SERVER_PORT || 3002;
+const port = process.env.MAIN_SERVER_PORT || process.env.PORT || 3002;
 
 const app = express();
 
-app.listen(port, () => console.log(`Main server listen on ${port} port`));
+export const server = app.listen(port, () => console.log(`Main server listen on ${port} port`));
 
 const state: State = {
   games: {
