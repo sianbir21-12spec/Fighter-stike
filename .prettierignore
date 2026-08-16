@@ -1,0 +1,8 @@
+/node_modules
+/dist
+/package-lock.json
+*.yml
+*.yaml
+*.proto.js
+*.md
+/src/client/jakarta

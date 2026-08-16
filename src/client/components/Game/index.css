@@ -1,0 +1,45 @@
+.controllers {
+  display: flex;
+  position: absolute;
+  flex-direction: row;
+  right: 0;
+  bottom: 0;
+  align-items: center;
+  bottom: 0;
+  height: 100px;
+  margin-bottom: 27px;
+  margin-right: 20px;
+
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+
+.deathNotesWrapper {
+  position: absolute;
+  top: 30%;
+  left: 20px;
+  overflow: hidden;
+}
+
+.startAtTime {
+  font-size: 22px;
+  color: #eee;
+  text-shadow: #222 0 0 4px;
+  text-align: center;
+  position: relative;
+  left: 0;
+  right: 0;
+  top: 56px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.startAtText {
+  background-color: #0000005e;
+  width: 170px;
+  border-radius: 4px;
+}
