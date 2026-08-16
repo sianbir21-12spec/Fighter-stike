@@ -1,7 +1,8 @@
 import * as ws from 'ws';
 
-// The two existing servers still run on their normal internal ports.
-// Only the main server is exposed publicly by Zeabur.
+// One public Zeabur service: keep the existing main and game servers on
+// internal ports and expose the game WebSocket through the main server.
+process.env.ONE_SERVICE = 'true';
 process.env.MAIN_SERVER_PORT = process.env.PORT || process.env.MAIN_SERVER_PORT || '3002';
 process.env.GAME_SERVER_PORT = process.env.GAME_SERVER_PORT || '3001';
 
@@ -14,7 +15,7 @@ require('./gameServer');
 const publicServer: import('http').Server = main.server;
 const proxyServer = new ws.Server({ noServer: true });
 
-// The browser connects to the single public Zeabur domain. This small in-process
+// The browser connects to the single public Zeabur domain. This in-process
 // WebSocket proxy forwards that connection to the existing game server on :3001.
 publicServer.on('upgrade', (request, socket, head) => {
   proxyServer.handleUpgrade(request, socket, head, (clientSocket) => {
@@ -55,4 +56,6 @@ publicServer.on('upgrade', (request, socket, head) => {
   });
 });
 
-console.log(`One-service mode enabled: public=${process.env.MAIN_SERVER_PORT}, game=${process.env.GAME_SERVER_PORT}`);
+console.log(
+  `One-service mode enabled: public=${process.env.MAIN_SERVER_PORT}, game=${process.env.GAME_SERVER_PORT}`,
+);
