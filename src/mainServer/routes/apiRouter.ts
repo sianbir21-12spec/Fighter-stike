@@ -1,6 +1,6 @@
 import { serializeUser, deserializeUser, authenticate, use as usePassport } from 'passport';
-import { Router, Express } from 'express';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
+import { Router, Express } from 'express';
 import { connectionDB } from '../models/database';
 import {
   getUserStatsByTournament,
@@ -61,9 +61,6 @@ export function applyApiRouter(app: Express, state: State) {
       });
   });
 
-  /**
-   * Preflight block.
-   */
   apiRouter.options(
     [
       '/register',
@@ -203,13 +200,10 @@ export function applyApiRouter(app: Express, state: State) {
     authenticate('bearer', { failureRedirect: '/' }),
     (req, res) => {
       setAccessAllowOrigin(req, res);
-
       const tournamentId = Number(req.params.id);
-
       if (typeof tournamentId === 'undefined' || typeof tournamentId !== 'number') {
         return res.status(422).send('Unprocessed entity: tournamentId');
       }
-
       const connection = connectionDB();
       const { id } = req.user;
       getUserStatsByTournament(connection, id, tournamentId)
@@ -233,9 +227,7 @@ export function applyApiRouter(app: Express, state: State) {
     (req, res) => {
       setAccessAllowOrigin(req, res);
       const { id } = req.user;
-
       const connection = connectionDB();
-
       getPretenders(connection)
         .then((pretenders: Pretender[]) => {
           connection.end().then(() => {
@@ -257,25 +249,19 @@ export function applyApiRouter(app: Express, state: State) {
     authenticate('bearer', { failureRedirect: '/' }),
     (req, res) => {
       setAccessAllowOrigin(req, res);
-
       const connection = connectionDB();
       const userId = req.user.id;
-
       const tournamentId = Number(req.params.id);
-
       if (typeof tournamentId === 'undefined' || typeof tournamentId !== 'number') {
         return res.status(422).send('Unprocessed entity: tournamentId');
       }
-
       getUserLadder(connection, tournamentId)
         .then((ladder: UserStats[]) => {
           connection.end().then(() => {
             const myIndex = ladder.findIndex((stats) => stats.id === userId);
-
             if (myIndex === -1) {
               return res.status(403).send('Not Found');
             }
-
             if (myIndex === 0) {
               const result: LadderResponse = { ladder: [ladder[myIndex], ladder[myIndex + 1]] };
               return res.send(result);
@@ -284,7 +270,6 @@ export function applyApiRouter(app: Express, state: State) {
               const result: LadderResponse = { ladder: [ladder[myIndex - 1], ladder[myIndex]] };
               return res.send(result);
             }
-
             const result: LadderResponse = {
               ladder: [ladder[myIndex - 1], ladder[myIndex], ladder[myIndex + 1]],
             };
@@ -302,7 +287,6 @@ export function applyApiRouter(app: Express, state: State) {
 
   apiRouter.get('/tournament/list', (req, res) => {
     setAccessAllowOrigin(req, res);
-
     const connection = connectionDB();
     getTournamentList(connection)
       .then((tournaments: Tournament[]) => {
@@ -321,7 +305,6 @@ export function applyApiRouter(app: Express, state: State) {
 
   apiRouter.get('/tournament/pretenders', (req, res) => {
     setAccessAllowOrigin(req, res);
-
     const connection = connectionDB();
     getPretenders(connection)
       .then((pretenders: Pretender[]) => {
@@ -342,11 +325,8 @@ export function applyApiRouter(app: Express, state: State) {
     authenticate('bearer', { failureRedirect: '/' }),
     (req, res) => {
       setAccessAllowOrigin(req, res);
-
       const connection = connectionDB();
-      const promise = getOwnAchievements(connection, req.user.id);
-
-      promise
+      getOwnAchievements(connection, req.user.id)
         .then((result) => {
           connection.end().then(() => {
             res.send({ achievements: result });
@@ -363,11 +343,8 @@ export function applyApiRouter(app: Express, state: State) {
 
   apiRouter.get('/achievement/list', (req, res) => {
     setAccessAllowOrigin(req, res);
-
     const connection = connectionDB();
-    const promise = getAchievements(connection);
-
-    promise
+    getAchievements(connection)
       .then((result) => {
         connection.end().then(() => {
           res.send({ achievements: result });
@@ -386,10 +363,8 @@ export function applyApiRouter(app: Express, state: State) {
     authenticate('bearer', { failureRedirect: '/' }),
     (req, res) => {
       setAccessAllowOrigin(req, res);
-
       const { achievementId } = req.body;
       const { id } = req.user;
-
       if (!id || typeof id !== 'number') {
         return res.status(422).send('Unprocessed entity');
       }
@@ -397,8 +372,7 @@ export function applyApiRouter(app: Express, state: State) {
         return res.status(422).send('Unprocessed entity');
       }
       const connection = connectionDB();
-      const promise = setAchievements(connection, id, achievementId);
-      promise
+      setAchievements(connection, id, achievementId)
         .then((result) => {
           connection.end().then(() => {
             res.send({ achievement: result });
@@ -422,7 +396,9 @@ export function applyApiRouter(app: Express, state: State) {
         type,
         players,
         maxPlayers,
-        url,
+        // In one-service mode the browser must connect back to this public host.
+        // The actual game server remains on the internal :3001 port.
+        url: process.env.ONE_SERVICE === 'true' ? req.get('host') || url : url,
         isGrandFinal,
         city,
         enable,
