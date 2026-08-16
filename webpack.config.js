@@ -70,7 +70,13 @@ module.exports = (_, args) => {
     },
 
     plugins: [
-      new Dotenv(),
+      // Zeabur does not provide a .env file during the Docker build.
+      // Keep the build working without one and allow environment variables
+      // supplied by the build environment to be used when present.
+      new Dotenv({
+        silent: true,
+        systemvars: true,
+      }),
       new ForkTsCheckerWebpackPlugin({
         watch: ['./src'],
       }),
