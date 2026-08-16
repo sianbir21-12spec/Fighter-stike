@@ -44,9 +44,17 @@ export class GameSelect extends React.PureComponent<Props, State> {
       Promise.all([
         canIjoinToGrandFinal({ token: appState.token }),
         getList({ token: appState.token }),
-      ]).then(([canJoinToGrandFinal, gamelist]) => {
-        this.setState({ gamelist, canJoinToGrandFinal: canJoinToGrandFinal.can });
-      });
+      ])
+        .then(([canJoinToGrandFinal, gamelist]) => {
+          this.setState({
+            gamelist: Array.isArray(gamelist) ? gamelist : [],
+            canJoinToGrandFinal: Boolean(canJoinToGrandFinal && canJoinToGrandFinal.can),
+          });
+        })
+        .catch((error) => {
+          console.error('Unable to load game list:', error);
+          this.setState({ gamelist: [], canJoinToGrandFinal: false });
+        });
     }
   }
 
@@ -70,7 +78,7 @@ export class GameSelect extends React.PureComponent<Props, State> {
     let enableTournament = false;
     let tournamentMessage = 'Скоро новый турнир';
 
-    const tournament = getCurrentTournament(gamelist);
+    const tournament = getCurrentTournament(Array.isArray(gamelist) ? gamelist : []);
     if (tournament && tournament.enable) {
       if (tournament.isGrandFinal) {
         tournamentTitle = 'Grand Final';
@@ -146,7 +154,10 @@ export class GameSelect extends React.PureComponent<Props, State> {
   };
 
   private renderGameList = (gamelist: GamelistResponse) => {
-    const deathMatchGames = gamelist.filter(({ type }) => type === 'dm');
+    // Never trust an API payload blindly. A failed/proxied response can be an
+    // object instead of the expected array; rendering must not crash the app.
+    const safeGamelist = Array.isArray(gamelist) ? gamelist : [];
+    const deathMatchGames = safeGamelist.filter(({ type }) => type === 'dm');
     if (deathMatchGames.length === 0) {
       return (
         <div className={styles.enterItem}>
@@ -202,7 +213,8 @@ export class GameSelect extends React.PureComponent<Props, State> {
 }
 
 function getCurrentTournament(list: GamelistResponse) {
-  for (const game of list) {
+  const safeList = Array.isArray(list) ? list : [];
+  for (const game of safeList) {
     if (game.type === 'tournament' && game.enable) {
       return game;
     }
