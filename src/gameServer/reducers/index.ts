@@ -47,6 +47,27 @@ export const authConnection = (
   }
 
   if (joinType === 'player') {
+    // A browser refresh/reconnect can leave the previous player connection
+    // alive for a short time. The old code treated that as a hard join failure
+    // because the same userId was already present in game.players. Replace the
+    // stale/live session with this fresh connection instead.
+    const oldPlayer = [...state.game.players.values()].find((player) => player.userId === userId);
+    const cmds: Cmd[] = [];
+
+    if (oldPlayer && oldPlayer.id !== connectionId) {
+      const oldConnection = state.connections.map.get(oldPlayer.id);
+      console.log(
+        `Replacing existing game session for userId: ${userId}, oldConnectionId: ${oldPlayer.id}, newConnectionId: ${connectionId}`,
+      );
+
+      if (oldConnection) {
+        oldConnection.socket.terminate();
+        state.connections.map.delete(oldConnection.id);
+      }
+
+      cmds.push(game.kickPlayer(state.game, oldPlayer.id));
+    }
+
     const can = game.canJoinPlayer(state.game, userId);
     if (!can) {
       console.log(`User userId: ${userId} game join fail`);
@@ -66,7 +87,8 @@ export const authConnection = (
       isAlive: connection.isAlive,
     });
 
-    return game.joinPlayer(state.game, connection.id, data);
+    cmds.push(game.joinPlayer(state.game, connection.id, data));
+    return cmds;
   }
 
   if (joinType === 'observer') {
