@@ -3,6 +3,7 @@ import { clamp } from '../../../utils';
 import { updateBoost, updateSlow } from './boost';
 import { localAxisToXYAngle, degToRad } from '../../utils';
 import { updateWeapon } from './weapon';
+import * as quat from '@2gis/gl-matrix/quat';
 
 const rotationAcceleration = { x: 0.000004, z: 0.000004 };
 const maxRotationSpeed = { x: 0.0007, z: 0.0007 };
